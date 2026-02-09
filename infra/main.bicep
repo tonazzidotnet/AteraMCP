@@ -9,9 +9,6 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
-@description('ID of the user or service principal for role assignments')
-param principalId string = ''
-
 @secure()
 @description('Atera API key')
 param ateraApiKey string

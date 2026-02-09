@@ -4,9 +4,10 @@ metadata:
 services:
   api:
     project: .
-    language: ts
+    language: js
     host: function
+    dist: .azure-deploy
+    resourceName: ${AZURE_FUNCTION_NAME}
     hooks:
       prepackage:
-        shell: sh
-        run: npm run build
+        run: npm run build && node scripts/prepare-deploy.js

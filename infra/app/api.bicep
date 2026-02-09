@@ -60,17 +60,53 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
   }
 }
 
+// Blob container for Flex Consumption deployment packages
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+  parent: blobService
+  name: 'deploymentpackages'
+}
+
 // Function App
-resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
+resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
   name: 'func-${resourceToken}'
   location: location
   tags: union(tags, {
     'azd-service-name': 'api'
   })
   kind: 'functionapp,linux'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  dependsOn: [
+    deploymentContainer
+  ]
   properties: {
     serverFarmId: hostingPlan.id
     httpsOnly: true
+    functionAppConfig: {
+      deployment: {
+        storage: {
+          type: 'blobContainer'
+          value: '${storageAccount.properties.primaryEndpoints.blob}deploymentpackages'
+          authentication: {
+            type: 'SystemAssignedIdentity'
+          }
+        }
+      }
+      scaleAndConcurrency: {
+        maximumInstanceCount: 100
+        instanceMemoryMB: 2048
+      }
+      runtime: {
+        name: 'node'
+        version: '20'
+      }
+    }
     siteConfig: {
       appSettings: [
         {
@@ -80,14 +116,6 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
           value: appInsights.properties.ConnectionString
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'node'
-        }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4'
         }
         {
           name: 'ATERA_API_KEY'
@@ -100,7 +128,7 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
 }
 
 // Storage Blob Data Owner role for the Function App (managed identity)
-resource storageBlobRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (functionApp.identity != null) {
+resource storageBlobRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(storageAccount.id, functionApp.id, 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b')
   scope: storageAccount
   properties: {

@@ -2,11 +2,12 @@
 node_modules/
 
 # Build output
-dist/
+/dist/
 
 # Azure Functions
 local.settings.json
 .azure/
+/.azure-deploy/
 
 # IDE
 .vscode/
