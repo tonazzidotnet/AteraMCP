@@ -21,7 +21,7 @@ Thumbs.db
 # Azurite
 __azurite_db_*
 __blobstorage__/
-AzuriteConfig/
+AzuriteConfig
 
 # Environment
 .env
