@@ -100,11 +100,77 @@ curl -s -X POST -H "Content-Type: application/json" \
 
 ## Deploy to Azure
 
-```bash
-azd up
-```
+### Prerequisites
 
-This deploys a Flex Consumption Function App with Storage and Application Insights using the Bicep templates in `infra/`. The `ATERA_API_KEY` is passed as a secure parameter.
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) (`az`)
+- [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd) (`azd`)
+- An Azure subscription
+
+### Step-by-step
+
+1. **Log in** to the Azure Developer CLI:
+   ```bash
+   azd auth login
+   ```
+
+2. **Initialize** the environment (first time only):
+   ```bash
+   azd init
+   ```
+   Pick an environment name (e.g. `atera-mcp-prod`). This name prefixes all Azure resources.
+
+3. **Set your Atera API key**:
+   ```bash
+   azd env set ATERA_API_KEY <your-atera-api-key>
+   ```
+
+4. **Deploy everything** (infrastructure + code):
+   ```bash
+   azd up
+   ```
+   You'll be prompted to select an Azure subscription and location. This creates:
+   - Resource group
+   - Storage account
+   - Application Insights
+   - Flex Consumption Function App
+
+   The MCP endpoint URL is printed in the output when deployment completes.
+
+5. **Retrieve the system key** (required for remote MCP clients):
+   ```bash
+   az functionapp keys list \
+     --name <your-function-app-name> \
+     --resource-group <your-resource-group> \
+     --query systemKeys.default -o tsv
+   ```
+
+6. **Connect your MCP client** using the remote URL and system key:
+   ```json
+   {
+     "type": "sse",
+     "url": "https://<your-function-app>.azurewebsites.net/runtime/webhooks/mcp",
+     "headers": {
+       "x-functions-key": "<system-key>"
+     }
+   }
+   ```
+
+7. **Verify** the remote endpoint:
+   ```bash
+   curl -s -X POST \
+     -H "Content-Type: application/json" \
+     -H "x-functions-key: <system-key>" \
+     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
+     https://<your-function-app>.azurewebsites.net/runtime/webhooks/mcp
+   ```
+
+### Subsequent deploys
+
+To push code changes without re-provisioning infrastructure:
+
+```bash
+azd deploy
+```
 
 ## Tech Stack
 
