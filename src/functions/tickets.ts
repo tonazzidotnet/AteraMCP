@@ -43,16 +43,9 @@ app.mcpTool("atera_list_tickets", {
         ticketStatus,
         customerId,
       });
-      return {
-        content: [
-          {
-            type: "text",
-            text: paginatedResult(result.items, result.page, result.totalPages),
-          },
-        ],
-      };
+      return paginatedResult(result.items, result.page, result.totalPages);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });
@@ -66,9 +59,9 @@ app.mcpTool("atera_get_ticket", {
   handler: async ({ ticketId }: { ticketId: number }) => {
     try {
       const ticket = await ateraGet<AteraTicket>(`/tickets/${ticketId}`);
-      return { content: [{ type: "text", text: toJson(ticket) }] };
+      return toJson(ticket);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });
@@ -101,16 +94,9 @@ app.mcpTool("atera_list_ticket_comments", {
           itemsInPage: itemsInPage ?? 20,
         }
       );
-      return {
-        content: [
-          {
-            type: "text",
-            text: paginatedResult(result.items, result.page, result.totalPages),
-          },
-        ],
-      };
+      return paginatedResult(result.items, result.page, result.totalPages);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });
@@ -126,9 +112,9 @@ app.mcpTool("atera_get_ticket_work_hours", {
       const workHours = await ateraGet<AteraTicketWorkHours[]>(
         `/tickets/${ticketId}/workhours`
       );
-      return { content: [{ type: "text", text: toJson(workHours) }] };
+      return toJson(workHours);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });
@@ -144,9 +130,9 @@ app.mcpTool("atera_get_ticket_billable_duration", {
       const duration = await ateraGet<AteraTicketBillableDuration>(
         `/tickets/${ticketId}/billableduration`
       );
-      return { content: [{ type: "text", text: toJson(duration) }] };
+      return toJson(duration);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });

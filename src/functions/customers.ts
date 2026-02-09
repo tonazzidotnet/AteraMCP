@@ -20,16 +20,9 @@ app.mcpTool("atera_list_customers", {
         page: page ?? 1,
         itemsInPage: itemsInPage ?? 20,
       });
-      return {
-        content: [
-          {
-            type: "text",
-            text: paginatedResult(result.items, result.page, result.totalPages),
-          },
-        ],
-      };
+      return paginatedResult(result.items, result.page, result.totalPages);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });
@@ -45,9 +38,9 @@ app.mcpTool("atera_get_customer", {
       const customer = await ateraGet<AteraCustomer>(
         `/customers/${customerId}`
       );
-      return { content: [{ type: "text", text: toJson(customer) }] };
+      return toJson(customer);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });

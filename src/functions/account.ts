@@ -11,10 +11,10 @@ app.mcpTool("atera_get_account", {
   toolProperties: {},
   handler: async () => {
     try {
-      const account = await ateraGet<AteraAccount>("/myaccount");
-      return { content: [{ type: "text", text: toJson(account) }] };
+      const account = await ateraGet<AteraAccount>("/account");
+      return toJson(account);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });

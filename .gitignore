@@ -18,5 +18,10 @@ local.settings.json
 .DS_Store
 Thumbs.db
 
+# Azurite
+__azurite_db_*
+__blobstorage__/
+AzuriteConfig/
+
 # Environment
 .env

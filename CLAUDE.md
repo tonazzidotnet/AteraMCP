@@ -11,9 +11,9 @@ npm start              # Clean + build + func start (runs prestart hook)
 npm run watch          # TypeScript watch mode (for development alongside func start)
 ```
 
-Local dev requires Azure Functions Core Tools (`func`) and a valid `ATERA_API_KEY` in `local.settings.json`.
+Local dev requires Azure Functions Core Tools (`func`), Azurite (`azurite --silent` in a separate terminal), and a valid `ATERA_API_KEY` in `local.settings.json`.
 
-MCP endpoint: `http://localhost:7071/runtime/webhooks/mcp`
+MCP endpoint: `http://localhost:7071/runtime/webhooks/mcp` (Streamable HTTP — POST only, GET returns 405)
 
 Deploy: `azd up` (uses `azure.yaml` and `infra/` Bicep templates)
 
@@ -27,7 +27,7 @@ This is an MCP (Model Context Protocol) server hosted on Azure Functions v4 (Nod
 MCP Client → Azure Functions MCP endpoint → app.mcpTool() handler → ateraClient → Atera API v3
 ```
 
-Each tool handler in `src/functions/` calls the shared HTTP client (`src/clients/ateraClient.ts`), which adds the `X-API-KEY` header and calls the Atera API using native `fetch`. Responses are returned as JSON strings in MCP content format: `{ content: [{ type: "text", text: "..." }] }`.
+Each tool handler in `src/functions/` calls the shared HTTP client (`src/clients/ateraClient.ts`), which adds the `X-API-KEY` header and calls the Atera API using native `fetch`. Handlers return plain JSON strings — the Azure Functions MCP framework automatically wraps them in `{ content: [{ type: "text", text: "..." }] }`.
 
 ### Key Modules
 
@@ -51,10 +51,18 @@ app.mcpTool("tool_name", {
     optionalParam: arg.string().describe("...").optional(),
   },
   handler: async ({ requiredParam, optionalParam }: { ... }) => {
-    // return { content: [{ type: "text", text: JSON.stringify(result) }] };
+    // Return plain string — framework wraps it in MCP content format
+    // return JSON.stringify(result, null, 2);
   },
 });
 ```
+
+### Gotchas
+
+- `app.mcpTool()` uses `toolProperties` with fluent `arg` builder — NOT `inputSchema` with JSON Schema
+- Handlers must return plain strings (or objects), NOT `{ content: [...] }` — the framework wraps automatically
+- The Atera account endpoint is `/account` (not `/myaccount`)
+- Local dev needs Azurite running; without it the function host becomes unhealthy after ~5 minutes
 
 ### Atera API Conventions
 

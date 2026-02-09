@@ -20,16 +20,9 @@ app.mcpTool("atera_list_contracts", {
         page: page ?? 1,
         itemsInPage: itemsInPage ?? 20,
       });
-      return {
-        content: [
-          {
-            type: "text",
-            text: paginatedResult(result.items, result.page, result.totalPages),
-          },
-        ],
-      };
+      return paginatedResult(result.items, result.page, result.totalPages);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });
@@ -45,9 +38,9 @@ app.mcpTool("atera_get_contract", {
       const contract = await ateraGet<AteraContract>(
         `/contracts/${contractId}`
       );
-      return { content: [{ type: "text", text: toJson(contract) }] };
+      return toJson(contract);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });
@@ -80,16 +73,9 @@ app.mcpTool("atera_list_contracts_by_customer", {
           itemsInPage: itemsInPage ?? 20,
         }
       );
-      return {
-        content: [
-          {
-            type: "text",
-            text: paginatedResult(result.items, result.page, result.totalPages),
-          },
-        ],
-      };
+      return paginatedResult(result.items, result.page, result.totalPages);
     } catch (error) {
-      return { content: [{ type: "text", text: formatError(error) }] };
+      return formatError(error);
     }
   },
 });
