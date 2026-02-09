@@ -1,0 +1,12 @@
+name: atera-mcp-server
+metadata:
+  template: atera-mcp-server
+services:
+  api:
+    project: .
+    language: ts
+    host: function
+    hooks:
+      prepackage:
+        shell: sh
+        run: npm run build

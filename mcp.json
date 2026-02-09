@@ -1,0 +1,24 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "atera-system-key",
+      "description": "Azure Functions system key for MCP endpoint",
+      "password": true
+    }
+  ],
+  "servers": {
+    "atera-mcp-local": {
+      "type": "sse",
+      "url": "http://localhost:7071/runtime/webhooks/mcp",
+      "headers": {}
+    },
+    "atera-mcp-remote": {
+      "type": "sse",
+      "url": "https://<your-function-app>.azurewebsites.net/runtime/webhooks/mcp",
+      "headers": {
+        "x-functions-key": "{atera-system-key}"
+      }
+    }
+  }
+}

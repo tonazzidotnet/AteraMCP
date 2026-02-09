@@ -1,0 +1,21 @@
+{
+  "name": "atera-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Atera RMM API on Azure Functions",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "prestart": "npm run clean && npm run build",
+    "start": "func start"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.0.0"
+  }
+}
