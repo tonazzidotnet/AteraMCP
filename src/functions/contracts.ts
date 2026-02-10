@@ -3,6 +3,7 @@ import { ateraGet, ateraGetPaginated } from "../clients/ateraClient.js";
 import { AteraContract } from "../types/atera.js";
 import { toJson, paginatedResult } from "../helpers/responseFormatter.js";
 import { formatError } from "../helpers/errorHandler.js";
+import { parseArgs } from "../helpers/parseArgs.js";
 
 app.mcpTool("atera_list_contracts", {
   toolName: "atera_list_contracts",
@@ -14,7 +15,8 @@ app.mcpTool("atera_list_contracts", {
       .describe("Items per page (default 20, max 50)")
       .optional(),
   },
-  handler: async ({ page, itemsInPage }: { page?: number; itemsInPage?: number }) => {
+  handler: async (input: unknown) => {
+    const { page, itemsInPage } = parseArgs<{ page?: number; itemsInPage?: number }>(input);
     try {
       const result = await ateraGetPaginated<AteraContract>("/contracts", {
         page: page ?? 1,
@@ -33,7 +35,8 @@ app.mcpTool("atera_get_contract", {
   toolProperties: {
     contractId: arg.number().describe("The contract ID"),
   },
-  handler: async ({ contractId }: { contractId: number }) => {
+  handler: async (input: unknown) => {
+    const { contractId } = parseArgs<{ contractId: number }>(input);
     try {
       const contract = await ateraGet<AteraContract>(
         `/contracts/${contractId}`
@@ -56,15 +59,12 @@ app.mcpTool("atera_list_contracts_by_customer", {
       .describe("Items per page (default 20, max 50)")
       .optional(),
   },
-  handler: async ({
-    customerId,
-    page,
-    itemsInPage,
-  }: {
-    customerId: number;
-    page?: number;
-    itemsInPage?: number;
-  }) => {
+  handler: async (input: unknown) => {
+    const { customerId, page, itemsInPage } = parseArgs<{
+      customerId: number;
+      page?: number;
+      itemsInPage?: number;
+    }>(input);
     try {
       const result = await ateraGetPaginated<AteraContract>(
         `/contracts/customer/${customerId}`,

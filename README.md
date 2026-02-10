@@ -41,6 +41,7 @@ An [MCP](https://modelcontextprotocol.io/) server hosted on Azure Functions that
      "Values": {
        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
        "FUNCTIONS_WORKER_RUNTIME": "node",
+       "AzureWebJobsSecretStorageType": "Files",
        "ATERA_API_KEY": "<your-atera-api-key>"
      }
    }
@@ -63,7 +64,7 @@ An [MCP](https://modelcontextprotocol.io/) server hosted on Azure Functions that
 
 ## Connecting an MCP Client
 
-The endpoint uses **Streamable HTTP** transport (POST requests). A `mcp.json` template is included for client configuration.
+The endpoint uses **Streamable HTTP** transport (POST requests). A ready-to-use `mcp.json` template is included — most MCP clients (VS Code Copilot, Claude Desktop, etc.) can import it directly.
 
 **Local** (no auth required):
 ```json
@@ -73,7 +74,7 @@ The endpoint uses **Streamable HTTP** transport (POST requests). A `mcp.json` te
 }
 ```
 
-**Remote** (deployed to Azure, requires system key):
+**Remote** (deployed to Azure, requires system key — see [Deploy to Azure](#deploy-to-azure) for how to retrieve it):
 ```json
 {
   "type": "sse",
@@ -92,9 +93,14 @@ curl -s -X POST -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
   http://localhost:7071/runtime/webhooks/mcp
 
-# Check connectivity
+# Check connectivity (no arguments)
 curl -s -X POST -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"atera_get_account","arguments":{}}}' \
+  http://localhost:7071/runtime/webhooks/mcp
+
+# Call a tool with arguments
+curl -s -X POST -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"atera_get_ticket","arguments":{"ticketId":5556}}}' \
   http://localhost:7071/runtime/webhooks/mcp
 ```
 
@@ -178,3 +184,7 @@ azd deploy
 - **MCP**: Azure Functions MCP extension (`app.mcpTool()`)
 - **HTTP**: Native `fetch` (no external HTTP libraries)
 - **IaC**: Bicep (Flex Consumption plan)
+
+## Contributing
+
+See [CLAUDE.md](CLAUDE.md) for architecture details, tool registration patterns, and deployment gotchas.

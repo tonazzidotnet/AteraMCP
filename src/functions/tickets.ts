@@ -8,6 +8,7 @@ import {
 } from "../types/atera.js";
 import { toJson, paginatedResult } from "../helpers/responseFormatter.js";
 import { formatError } from "../helpers/errorHandler.js";
+import { parseArgs } from "../helpers/parseArgs.js";
 
 app.mcpTool("atera_list_tickets", {
   toolName: "atera_list_tickets",
@@ -25,17 +26,13 @@ app.mcpTool("atera_list_tickets", {
       .optional(),
     customerId: arg.number().describe("Filter by customer ID").optional(),
   },
-  handler: async ({
-    page,
-    itemsInPage,
-    ticketStatus,
-    customerId,
-  }: {
-    page?: number;
-    itemsInPage?: number;
-    ticketStatus?: string;
-    customerId?: number;
-  }) => {
+  handler: async (input: unknown) => {
+    const { page, itemsInPage, ticketStatus, customerId } = parseArgs<{
+      page?: number;
+      itemsInPage?: number;
+      ticketStatus?: string;
+      customerId?: number;
+    }>(input);
     try {
       const result = await ateraGetPaginated<AteraTicket>("/tickets", {
         page: page ?? 1,
@@ -56,7 +53,8 @@ app.mcpTool("atera_get_ticket", {
   toolProperties: {
     ticketId: arg.number().describe("The ticket ID"),
   },
-  handler: async ({ ticketId }: { ticketId: number }) => {
+  handler: async (input: unknown) => {
+    const { ticketId } = parseArgs<{ ticketId: number }>(input);
     try {
       const ticket = await ateraGet<AteraTicket>(`/tickets/${ticketId}`);
       return toJson(ticket);
@@ -77,15 +75,12 @@ app.mcpTool("atera_list_ticket_comments", {
       .describe("Items per page (default 20, max 50)")
       .optional(),
   },
-  handler: async ({
-    ticketId,
-    page,
-    itemsInPage,
-  }: {
-    ticketId: number;
-    page?: number;
-    itemsInPage?: number;
-  }) => {
+  handler: async (input: unknown) => {
+    const { ticketId, page, itemsInPage } = parseArgs<{
+      ticketId: number;
+      page?: number;
+      itemsInPage?: number;
+    }>(input);
     try {
       const result = await ateraGetPaginated<AteraTicketComment>(
         `/tickets/${ticketId}/comments`,
@@ -107,7 +102,8 @@ app.mcpTool("atera_get_ticket_work_hours", {
   toolProperties: {
     ticketId: arg.number().describe("The ticket ID"),
   },
-  handler: async ({ ticketId }: { ticketId: number }) => {
+  handler: async (input: unknown) => {
+    const { ticketId } = parseArgs<{ ticketId: number }>(input);
     try {
       const workHours = await ateraGet<AteraTicketWorkHours[]>(
         `/tickets/${ticketId}/workhours`
@@ -125,7 +121,8 @@ app.mcpTool("atera_get_ticket_billable_duration", {
   toolProperties: {
     ticketId: arg.number().describe("The ticket ID"),
   },
-  handler: async ({ ticketId }: { ticketId: number }) => {
+  handler: async (input: unknown) => {
+    const { ticketId } = parseArgs<{ ticketId: number }>(input);
     try {
       const duration = await ateraGet<AteraTicketBillableDuration>(
         `/tickets/${ticketId}/billableduration`

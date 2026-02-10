@@ -3,6 +3,7 @@ import { ateraGet, ateraGetPaginated } from "../clients/ateraClient.js";
 import { AteraCustomer } from "../types/atera.js";
 import { toJson, paginatedResult } from "../helpers/responseFormatter.js";
 import { formatError } from "../helpers/errorHandler.js";
+import { parseArgs } from "../helpers/parseArgs.js";
 
 app.mcpTool("atera_list_customers", {
   toolName: "atera_list_customers",
@@ -14,7 +15,8 @@ app.mcpTool("atera_list_customers", {
       .describe("Items per page (default 20, max 50)")
       .optional(),
   },
-  handler: async ({ page, itemsInPage }: { page?: number; itemsInPage?: number }) => {
+  handler: async (input: unknown) => {
+    const { page, itemsInPage } = parseArgs<{ page?: number; itemsInPage?: number }>(input);
     try {
       const result = await ateraGetPaginated<AteraCustomer>("/customers", {
         page: page ?? 1,
@@ -33,7 +35,8 @@ app.mcpTool("atera_get_customer", {
   toolProperties: {
     customerId: arg.number().describe("The customer ID"),
   },
-  handler: async ({ customerId }: { customerId: number }) => {
+  handler: async (input: unknown) => {
+    const { customerId } = parseArgs<{ customerId: number }>(input);
     try {
       const customer = await ateraGet<AteraCustomer>(
         `/customers/${customerId}`
