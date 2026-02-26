@@ -129,6 +129,36 @@ export interface AteraTicketSlim {
   CreatedDate: string;
 }
 
+// GET /api/v3/agents/customer/{customerId}
+export interface AteraAgent {
+  AgentID: number;
+  AgentName: string;
+  CustomerID: number;
+  CustomerName: string;
+  MachineName: string;
+  DomainName: string;
+  OSType: string;
+  OSVersion: string;
+  Online: boolean;
+  LastRebootTime: string;
+  LastPatchTime: string;
+  IpAddresses: string;
+}
+
+// GET /api/v3/contacts/customer/{customerId}
+export interface AteraContact {
+  EndUserID: number;
+  Firstname: string;
+  Lastname: string;
+  Email: string;
+  Phone: string;
+  JobTitle: string;
+  CustomerID: number;
+  CustomerName: string;
+  CreatedOn: string;
+  LastModified: string;
+}
+
 // Raw paginated response from Atera API
 export interface AteraApiPageResponse<T> {
   items: T[];
