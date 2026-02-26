@@ -18,6 +18,9 @@ An [MCP](https://modelcontextprotocol.io/) server hosted on Azure Functions that
 | `atera_get_ticket_work_hours` | Get work hours for a ticket |
 | `atera_get_ticket_billable_duration` | Get billable duration for a ticket |
 | `atera_list_tickets_by_technician` | List all tickets for a technician (all pages, slim fields — avoids token limits) |
+| `atera_search_tickets` | Search tickets by keyword in title and description |
+| `atera_list_agents` | List devices (servers, PCs) by customer or search by device name |
+| `atera_list_contacts` | List contacts (employees) by customer or search by name |
 
 ## Prerequisites
 
