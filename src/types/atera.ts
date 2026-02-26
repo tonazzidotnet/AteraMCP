@@ -73,6 +73,7 @@ export interface AteraTicket {
   EndUserLastName: string;
   EndUserEmail: string;
   TechnicianContactID: number;
+  TechnicianFullName?: string;
   FirstTechnicianFirstName: string;
   FirstTechnicianLastName: string;
   Description: string;
@@ -115,6 +116,17 @@ export interface AteraTicketBillableDuration {
   BillableDurationMinutes: number;
   NonBillableDurationMinutes: number;
   TotalDurationMinutes: number;
+}
+
+// Slim ticket shape used by atera_list_tickets_by_technician
+export interface AteraTicketSlim {
+  TicketID: number;
+  TicketTitle: string;
+  TicketStatus: string;
+  TicketPriority: string;
+  CustomerName: string;
+  TechnicianFullName: string;
+  CreatedDate: string;
 }
 
 // Raw paginated response from Atera API

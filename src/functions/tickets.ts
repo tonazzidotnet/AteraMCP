@@ -2,6 +2,7 @@ import { app, arg } from "@azure/functions";
 import { ateraGet, ateraGetPaginated } from "../clients/ateraClient.js";
 import {
   AteraTicket,
+  AteraTicketSlim,
   AteraTicketComment,
   AteraTicketWorkHours,
   AteraTicketBillableDuration,
@@ -109,6 +110,74 @@ app.mcpTool("atera_get_ticket_work_hours", {
         `/tickets/${ticketId}/workhours`
       );
       return toJson(workHours);
+    } catch (error) {
+      return formatError(error);
+    }
+  },
+});
+
+app.mcpTool("atera_list_tickets_by_technician", {
+  toolName: "atera_list_tickets_by_technician",
+  description:
+    "List tickets assigned to a specific technician across all pages. Returns only essential fields (ID, title, status, priority, customer, technician, date) to avoid token limits. Use this instead of atera_list_tickets when filtering by technician name.",
+  toolProperties: {
+    technicianName: arg
+      .string()
+      .describe(
+        "Technician full name to filter by (case-insensitive substring match)"
+      ),
+    ticketStatus: arg
+      .string()
+      .describe("Filter by status: Open, Pending, Resolved, Closed, or Deleted")
+      .optional(),
+  },
+  handler: async (input: unknown) => {
+    const { technicianName, ticketStatus } = parseArgs<{
+      technicianName: string;
+      ticketStatus?: string;
+    }>(input);
+    try {
+      const allTickets: AteraTicketSlim[] = [];
+      let page = 1;
+      let totalPages = 1;
+      const searchName = technicianName.toLowerCase();
+
+      do {
+        const result = await ateraGetPaginated<AteraTicket>("/tickets", {
+          page,
+          itemsInPage: 50,
+          ticketStatus,
+        });
+        totalPages = result.totalPages;
+
+        for (const t of result.items) {
+          const fullName = (
+            t.TechnicianFullName ??
+            `${t.FirstTechnicianFirstName ?? ""} ${t.FirstTechnicianLastName ?? ""}`.trim()
+          ).toLowerCase();
+          if (fullName.includes(searchName)) {
+            allTickets.push({
+              TicketID: t.TicketID,
+              TicketTitle: t.TicketTitle,
+              TicketStatus: t.TicketStatus,
+              TicketPriority: t.TicketPriority,
+              CustomerName: t.CustomerName,
+              TechnicianFullName:
+                t.TechnicianFullName ??
+                `${t.FirstTechnicianFirstName ?? ""} ${t.FirstTechnicianLastName ?? ""}`.trim(),
+              CreatedDate: t.CreatedDate,
+            });
+          }
+        }
+        page++;
+      } while (page <= totalPages);
+
+      return JSON.stringify({
+        technician: technicianName,
+        ticketStatus: ticketStatus ?? "all",
+        count: allTickets.length,
+        tickets: allTickets,
+      });
     } catch (error) {
       return formatError(error);
     }
