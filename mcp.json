@@ -15,7 +15,7 @@
     },
     "atera-mcp-remote": {
       "type": "sse",
-      "url": "https://<your-function-app>.azurewebsites.net/runtime/webhooks/mcp",
+      "url": "https://func-2jzyvvdczu4ua.azurewebsites.net/runtime/webhooks/mcp",
       "headers": {
         "x-functions-key": "{atera-system-key}"
       }
